@@ -69,7 +69,7 @@ HeapRegionManager::HeapRegionManager() :
   _allocated_heapregions_length(0),
   _regions(), _heap_mapper(nullptr),
   _bitmap_mapper(nullptr),
-  _free_list("Free list", new MasterFreeRegionListChecker())
+  _free_list("Free list", new MasterFreeRegionListChecker()) // SANITIZER, creation of a free list
 { }
 
 void HeapRegionManager::initialize(G1RegionToSpaceMapper* heap_storage,
@@ -94,6 +94,8 @@ G1HeapRegion* HeapRegionManager::allocate_free_region(HeapRegionType type, uint 
   G1HeapRegion* hr = nullptr;
   bool from_head = !type.is_young();
   G1NUMA* numa = G1NUMA::numa();
+
+  // SANITIZER, allocating to a region from the list
 
   if (requested_node_index != G1NUMA::AnyNodeIndex && numa->is_enabled()) {
     // Try to allocate with requested node index.
@@ -222,7 +224,7 @@ void HeapRegionManager::initialize_regions(uint start, uint num_regions) {
 
     hr->initialize();
     hr->set_node_index(G1NUMA::numa()->index_for_region(hr));
-    insert_into_free_list(hr);
+    insert_into_free_list(hr); // SANITIZER, region initialization, adding it to the free list
     G1HeapRegionPrinter::active(hr);
   }
 }
@@ -817,7 +819,7 @@ public:
 
 void HeapRegionManager::rebuild_free_list(WorkerThreads* workers) {
   // Abandon current free list to allow a rebuild.
-  _free_list.abandon();
+  _free_list.abandon(); // SANITIZER, rebuilding the free list
 
   uint const num_workers = clamp(max_length(), 1u, workers->active_workers());
   G1RebuildFreeListTask task(this, num_workers);

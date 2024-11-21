@@ -74,12 +74,12 @@ inline G1HeapRegion* HeapRegionManager::next_region_in_humongous(G1HeapRegion* h
 }
 
 inline void HeapRegionManager::insert_into_free_list(G1HeapRegion* hr) {
-  _free_list.add_ordered(hr);
+  _free_list.add_ordered(hr); // SANITIZER, adding region into the free list
 }
 
 inline G1HeapRegion* HeapRegionManager::allocate_free_regions_starting_at(uint first, uint num_regions) {
   G1HeapRegion* start = at(first);
-  _free_list.remove_starting_at(start, num_regions);
+  _free_list.remove_starting_at(start, num_regions); // SANITIZER, allocating multiple regions from the free list
   return start;
 }
 

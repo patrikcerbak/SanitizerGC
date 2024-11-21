@@ -2798,7 +2798,7 @@ public:
       assert(r->rem_set()->is_empty(), "Empty regions should have empty remembered sets.");
       // Add free regions to the free list
       r->set_free();
-      _hrm->insert_into_free_list(r);
+      _hrm->insert_into_free_list(r); // SANITIZER, insert the region into the list (during colletion cycle?)
     } else if (!_free_list_only) {
       assert(r->rem_set()->is_empty(), "At this point remembered sets must have been cleared.");
 

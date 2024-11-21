@@ -77,6 +77,10 @@ inline void HeapRegionManager::insert_into_free_list(G1HeapRegion* hr) {
   _free_list.add_ordered(hr);
 }
 
+inline void HeapRegionManager::insert_into_free_list2(G1HeapRegion* hr) {
+  _free_list2.add_ordered(hr); // SANITIZER, inserting into list 2
+}
+
 inline G1HeapRegion* HeapRegionManager::allocate_free_regions_starting_at(uint first, uint num_regions) {
   G1HeapRegion* start = at(first);
   _free_list.remove_starting_at(start, num_regions);

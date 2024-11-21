@@ -69,7 +69,8 @@ HeapRegionManager::HeapRegionManager() :
   _allocated_heapregions_length(0),
   _regions(), _heap_mapper(nullptr),
   _bitmap_mapper(nullptr),
-  _free_list("Free list", new MasterFreeRegionListChecker())
+  _free_list("Free list", new MasterFreeRegionListChecker()),
+  _free_list2("Free list 2", new MasterFreeRegionListChecker()) // SANITIZER, creating second list
 { }
 
 void HeapRegionManager::initialize(G1RegionToSpaceMapper* heap_storage,
@@ -95,15 +96,19 @@ G1HeapRegion* HeapRegionManager::allocate_free_region(HeapRegionType type, uint 
   bool from_head = !type.is_young();
   G1NUMA* numa = G1NUMA::numa();
 
+  // SANITIZER, taking region from list 2
+
   if (requested_node_index != G1NUMA::AnyNodeIndex && numa->is_enabled()) {
     // Try to allocate with requested node index.
-    hr = _free_list.remove_region_with_node_index(from_head, requested_node_index);
+    // hr = _free_list.remove_region_with_node_index(from_head, requested_node_index);
+    hr = _free_list2.remove_region_with_node_index(from_head, requested_node_index);
   }
 
   if (hr == nullptr) {
     // If there's a single active node or we did not get a region from our requested node,
     // try without requested node index.
-    hr = _free_list.remove_region(from_head);
+    // hr = _free_list.remove_region(from_head);
+    hr = _free_list2.remove_region(from_head);
   }
 
   if (hr != nullptr) {
@@ -223,6 +228,7 @@ void HeapRegionManager::initialize_regions(uint start, uint num_regions) {
     hr->initialize();
     hr->set_node_index(G1NUMA::numa()->index_for_region(hr));
     insert_into_free_list(hr);
+    insert_into_free_list2(hr); // SANITIZER, also initializing list 2
     G1HeapRegionPrinter::active(hr);
   }
 }

@@ -124,6 +124,7 @@ class HeapRegionManager: public CHeapObj<mtGC> {
   G1RegionToSpaceMapper* _heap_mapper;
   G1RegionToSpaceMapper* _bitmap_mapper;
   FreeRegionList _free_list;
+  FreeRegionList _free_list2;
 
   void expand(uint index, uint num_regions, WorkerThreads* pretouch_workers = nullptr);
 
@@ -191,6 +192,7 @@ public:
 
   // Insert the given region into the free region list.
   inline void insert_into_free_list(G1HeapRegion* hr);
+  inline void insert_into_free_list2(G1HeapRegion *hr);
 
   // Rebuild the free region list from scratch.
   void rebuild_free_list(WorkerThreads* workers);
@@ -198,6 +200,10 @@ public:
   // Insert the given region list into the global free region list.
   void insert_list_into_free_list(FreeRegionList* list) {
     _free_list.add_ordered(list);
+  }
+
+  void insert_list_into_free_list2(FreeRegionList* list) {
+    _free_list2.add_ordered(list);
   }
 
   // Allocate a free region with specific node index. If fails allocate with next node index.

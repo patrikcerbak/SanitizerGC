@@ -164,6 +164,8 @@ public:
                   G1RegionToSpaceMapper* bot,
                   G1RegionToSpaceMapper* cardtable);
 
+  void create_new_free_list();
+
   // Return the "dummy" region used for G1AllocRegion. This is currently a hardwired
   // new G1HeapRegion that owns G1HeapRegion at index 0. Since at the moment we commit
   // the heap from the lowest address, this region (and its associated data

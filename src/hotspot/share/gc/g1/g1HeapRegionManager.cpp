@@ -90,7 +90,25 @@ void HeapRegionManager::initialize(G1RegionToSpaceMapper* heap_storage,
   _committed_map.initialize(reserved_length());
 }
 
+void HeapRegionManager::create_new_free_list() {
+  FreeRegionList _new_free_list("New free list", new MasterFreeRegionListChecker());
+
+  // SANITIZER, creating new free list each time
+
+  for (uint i = 0; i < _free_list.length(); i++) {
+    G1HeapRegion *old_hr = _free_list.remove_region(true);
+    old_hr->set_containing_set(nullptr);
+    old_hr->set_next(nullptr);
+    old_hr->set_prev(nullptr);
+    _new_free_list.add_ordered(old_hr);
+  }
+
+  this->_free_list = _new_free_list;
+}
+
 G1HeapRegion* HeapRegionManager::allocate_free_region(HeapRegionType type, uint requested_node_index) {
+  create_new_free_list(); // SANITIZER, creating it here
+
   G1HeapRegion* hr = nullptr;
   bool from_head = !type.is_young();
   G1NUMA* numa = G1NUMA::numa();

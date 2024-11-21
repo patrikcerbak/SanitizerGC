@@ -74,6 +74,9 @@ inline G1HeapRegion* HeapRegionManager::next_region_in_humongous(G1HeapRegion* h
 }
 
 inline void HeapRegionManager::insert_into_free_list(G1HeapRegion* hr) {
+  hr->set_containing_set(nullptr); // SANITIZER, inserting back into the list
+  hr->set_next(nullptr);
+  hr->set_prev(nullptr);
   _free_list.add_ordered(hr);
 }
 

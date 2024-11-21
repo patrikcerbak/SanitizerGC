@@ -22,6 +22,8 @@
  *
  */
 
+#include <sys/mman.h>
+
 #include "precompiled.hpp"
 #include "gc/g1/g1Arguments.hpp"
 #include "gc/g1/g1CollectedHeap.inline.hpp"
@@ -90,8 +92,44 @@ void HeapRegionManager::initialize(G1RegionToSpaceMapper* heap_storage,
   _committed_map.initialize(reserved_length());
 }
 
+G1HeapRegion *HeapRegionManager::new_new_heap_region(uint hrm_index) {
+  // SANITIZER, creating and returning a new heap region
+
+  size_t page_size = os::vm_page_size(); // HotSpot typically has a utility for page size.
+  size_t num_pages = G1HeapRegion::GrainBytes * 32 / page_size;
+  void* memory = mmap(NULL, num_pages * page_size,
+                         PROT_READ | PROT_WRITE,
+                         MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+  HeapWord* hw_memory = reinterpret_cast<HeapWord*>(memory);
+  MemRegion heap(hw_memory, G1HeapRegion::GrainWords);
+
+  size_t bot_size = G1BlockOffsetTable::compute_size(heap.word_size());
+  HeapWord* bot_data = NEW_C_HEAP_ARRAY(HeapWord, bot_size, mtGC);
+  ReservedSpace bot_rs(G1BlockOffsetTable::compute_size(heap.word_size()));
+  G1RegionToSpaceMapper* bot_storage = G1RegionToSpaceMapper::create_mapper(bot_rs,
+                                         bot_rs.size(),
+                                         os::vm_page_size(),
+                                         G1HeapRegion::GrainBytes,
+                                         CardTable::card_size(),
+                                         mtGC);
+  G1BlockOffsetTable bot(heap, bot_storage);
+  bot_storage->commit_regions(0, 1);
+
+  MemRegion mr(heap.start(), heap.start() + G1HeapRegion::GrainWords);
+
+  G1CardSetConfiguration config;
+
+  return new G1HeapRegion (hrm_index, &bot, mr, &config);
+
+}
+
 G1HeapRegion* HeapRegionManager::allocate_free_region(HeapRegionType type, uint requested_node_index) {
   G1HeapRegion* hr = nullptr;
+
+  // SANITIZER, returning a newly allocated region instead
+  return new_new_heap_region(requested_node_index);
+
   bool from_head = !type.is_young();
   G1NUMA* numa = G1NUMA::numa();
 

@@ -203,6 +203,11 @@ void BitMap::verify_size(idx_t size_in_bits) {
 }
 
 void BitMap::verify_index(idx_t bit) const {
+  // SANITIZER, breakpoint catcher
+  if (bit > 10000) {
+    printf(" ");
+  }
+
   assert(bit < _size,
          "BitMap index out of bounds: " SIZE_FORMAT " >= " SIZE_FORMAT,
          bit, _size);

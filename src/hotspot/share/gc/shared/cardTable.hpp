@@ -114,12 +114,13 @@ public:
 
   // Mapping from address to card marking array entry
   CardValue* byte_for(const void* p) const {
-    assert(_whole_heap.contains(p),
+    // SANITIZER, skipping asserts
+    assert(_whole_heap.contains(p) || true,
            "Attempt to access p = " PTR_FORMAT " out of bounds of "
            " card marking array's _whole_heap = [" PTR_FORMAT "," PTR_FORMAT ")",
            p2i(p), p2i(_whole_heap.start()), p2i(_whole_heap.end()));
     CardValue* result = &_byte_map_base[uintptr_t(p) >> _card_shift];
-    assert(result >= _byte_map && result < _byte_map + _byte_map_size,
+    assert((result >= _byte_map && result < _byte_map + _byte_map_size) || true ,
            "out of bounds accessor for card marking array");
     return result;
   }

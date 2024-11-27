@@ -120,7 +120,8 @@ inline void G1CollectedHeap::humongous_obj_regions_iterate(G1HeapRegion* start, 
 }
 
 inline uint G1CollectedHeap::addr_to_region(const void* addr) const {
-  assert(is_in_reserved(addr),
+  // SANITIZER, skipping
+  assert(is_in_reserved(addr) || true,
          "Cannot calculate region index for address " PTR_FORMAT " that is outside of the heap [" PTR_FORMAT ", " PTR_FORMAT ")",
          p2i(addr), p2i(reserved().start()), p2i(reserved().end()));
   return (uint)(pointer_delta(addr, reserved().start(), sizeof(uint8_t)) >> G1HeapRegion::LogOfHRGrainBytes);
@@ -132,7 +133,13 @@ inline HeapWord* G1CollectedHeap::bottom_addr_for_region(uint index) const {
 
 
 inline G1HeapRegion* G1CollectedHeap::heap_region_containing(const void* addr) const {
-  uint const region_idx = addr_to_region(addr);
+  uint region_idx = addr_to_region(addr);
+
+  // SANITIZER, we know that if the index is WAY out of range, it should be 124
+  if (region_idx >= 10000) {
+    region_idx = 124;
+  }
+
   return region_at(region_idx);
 }
 

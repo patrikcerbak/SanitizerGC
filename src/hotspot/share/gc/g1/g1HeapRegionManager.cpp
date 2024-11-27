@@ -63,6 +63,7 @@ public:
 };
 
 HeapRegionManager::HeapRegionManager() :
+  wasFirstTaken(false),
   _bot_mapper(nullptr),
   _cardtable_mapper(nullptr),
   _committed_map(),
@@ -113,6 +114,18 @@ G1HeapRegion* HeapRegionManager::allocate_free_region(HeapRegionType type, uint 
     if (numa->is_enabled() && hr->node_index() < numa->num_active_nodes()) {
       numa->update_statistics(G1NUMAStats::NewRegionAlloc, requested_node_index, hr->node_index());
     }
+  }
+
+  // SANITIZER, printing of bottom, top and end
+  printf("index: %d, _bottom: %p, _top: %p, _end: %p\n", hr->hrm_index(), hr->bottom(), hr->top(), hr->end());
+
+  // SANITIZER, moving the first region to different address
+  if (!wasFirstTaken) {
+    hr->move_this_region();
+    printf("region with index %d was moved here:\n", hr->hrm_index());
+    printf("    index: %d, _bottom: %p, _top: %p, _end: %p\n", hr->hrm_index(), hr->bottom(), hr->top(), hr->end());
+
+    wasFirstTaken = true;
   }
 
   return hr;

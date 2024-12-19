@@ -24,11 +24,35 @@
 
 #include "precompiled.hpp"
 #include "gc/g1/g1CardTable.hpp"
+
+#include <fstream>
+#include <iostream>
+
 #include "gc/g1/g1CollectedHeap.inline.hpp"
 #include "gc/shared/memset_with_concurrent_readers.hpp"
 #include "logging/log.hpp"
 
-void G1CardTable::g1_mark_as_young(const MemRegion& mr) {
+void G1CardTable::g1_mark_as_young(MemRegion& mr) {
+
+  void *ptr = nullptr;
+
+  if(reinterpret_cast<long>(mr.start()) > 0x700000000000) {
+    std::string fileName = "addresses.txt";
+    std::ifstream inputFile(fileName);
+
+    std::string line;
+
+    // std::getline(inputFile, line);
+    std::getline(inputFile, line);
+
+    inputFile.close();
+
+    uintptr_t address = std::stoull(line, nullptr, 16);
+    ptr = reinterpret_cast<void*>(address);
+  }
+
+  mr.set_start(reinterpret_cast<HeapWord*>(ptr));
+
   CardValue *first = byte_for(mr.start());
   CardValue *last = byte_after(mr.last());
 

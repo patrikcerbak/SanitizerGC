@@ -114,6 +114,9 @@ public:
 
   // Mapping from address to card marking array entry
   CardValue* byte_for(const void* p) const {
+
+
+
     // SANITIZER, skipping asserts
     assert(_whole_heap.contains(p) || true,
            "Attempt to access p = " PTR_FORMAT " out of bounds of "

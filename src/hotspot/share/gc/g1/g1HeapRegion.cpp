@@ -77,22 +77,16 @@ void G1HeapRegion::move_this_region() {
 
   std::string fileName = "addresses.txt";
   // deleting the file if it exists
-  if (std::remove(fileName.c_str()) == 0) {
-    std::cout << "File deleted successfully: " << fileName << std::endl;
-  } else {
-    std::cout << "File does not exist or cannot be deleted: " << fileName << std::endl;
-  }
+  std::remove(fileName.c_str());
+
   // creating a new file
   std::ofstream newFile(fileName);
   if (newFile) {
     newFile << old_bottom << std::endl;
     newFile << new_bottom << std::endl;
-    std::cout << "New file created successfully: " << fileName << std::endl;
   } else {
     std::cerr << "Error creating the new file: " << fileName << std::endl;
   }
-
-
 
 
   _bottom = new_bottom;

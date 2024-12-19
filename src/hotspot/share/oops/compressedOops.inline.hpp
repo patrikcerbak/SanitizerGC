@@ -66,9 +66,9 @@ inline oop CompressedOops::decode(narrowOop v) {
 inline narrowOop CompressedOops::encode_not_null(oop v) {
   assert(!is_null(v), "oop value can never be zero");
   assert(is_object_aligned(v), "address not aligned: " PTR_FORMAT, p2i(v));
-  assert(is_in(v) || true, "address not in heap range: " PTR_FORMAT, p2i(v));
+  assert(is_in(v) || true, "address not in heap range: " PTR_FORMAT, p2i(v)); // SANITIZER, skipping
   uint64_t  pd = (uint64_t)(pointer_delta((void*)v, (void*)base(), 1));
-  assert(OopEncodingHeapMax > pd || true, "change encoding max if new encoding");
+  assert(OopEncodingHeapMax > pd, "change encoding max if new encoding"); // SANITIZER HERE
   narrowOop result = narrow_oop_cast(pd >> shift());
   assert(decode_raw(result) == v, "reversibility");
   return result;

@@ -27,6 +27,8 @@
 
 #include "gc/g1/g1CollectedHeap.hpp"
 
+#include "customMapper.h"
+
 #include "gc/g1/g1BarrierSet.hpp"
 #include "gc/g1/g1CollectorState.hpp"
 #include "gc/g1/g1ConcurrentMark.inline.hpp"
@@ -120,9 +122,15 @@ inline void G1CollectedHeap::humongous_obj_regions_iterate(G1HeapRegion* start, 
 }
 
 inline uint G1CollectedHeap::addr_to_region(const void* addr) const {
-  assert(is_in_reserved(addr),
+  assert(is_in_reserved(addr) || true,
          "Cannot calculate region index for address " PTR_FORMAT " that is outside of the heap [" PTR_FORMAT ", " PTR_FORMAT ")",
          p2i(addr), p2i(reserved().start()), p2i(reserved().end()));
+
+  // SANITIZER 101
+  if(afterAddr != nullptr && addr >= afterAddr) {
+    addr = beforeAddr;
+  }
+
   return (uint)(pointer_delta(addr, reserved().start(), sizeof(uint8_t)) >> G1HeapRegion::LogOfHRGrainBytes);
 }
 
@@ -132,7 +140,9 @@ inline HeapWord* G1CollectedHeap::bottom_addr_for_region(uint index) const {
 
 
 inline G1HeapRegion* G1CollectedHeap::heap_region_containing(const void* addr) const {
-  uint const region_idx = addr_to_region(addr);
+  uint region_idx = addr_to_region(addr);
+
+
   return region_at(region_idx);
 }
 

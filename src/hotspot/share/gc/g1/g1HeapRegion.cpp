@@ -22,6 +22,11 @@
  *
  */
 
+#include <fstream>
+#include <iostream>
+#include <ostream>
+#include <sys/mman.h>
+
 #include "precompiled.hpp"
 #include "code/nmethod.hpp"
 #include "gc/g1/g1Allocator.inline.hpp"
@@ -48,11 +53,39 @@
 #include "runtime/globals_extension.hpp"
 #include "utilities/powerOfTwo.hpp"
 
+#include "gc/g1/customMapper.h"
+
 uint   G1HeapRegion::LogOfHRGrainBytes = 0;
 uint   G1HeapRegion::LogCardsPerRegion = 0;
 size_t G1HeapRegion::GrainBytes        = 0;
 size_t G1HeapRegion::GrainWords        = 0;
 size_t G1HeapRegion::CardsPerRegion    = 0;
+
+// SANITIZER, trying to move this region
+void G1HeapRegion::move_this_region() {
+  size_t region_size = _end - _bottom;
+
+  void* new_region = mmap(nullptr, region_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+  if (new_region == MAP_FAILED) {
+    printf("mmap failed\n");
+    return;
+  }
+
+  HeapWord* old_bottom = _bottom;
+  HeapWord* new_bottom = reinterpret_cast<HeapWord*>(new_region);
+
+  memcpy(new_bottom, old_bottom, region_size);
+
+  beforeAddr = old_bottom;
+  afterAddr = new_bottom;
+
+  _bottom = new_bottom;
+  _top = new_bottom;
+  _end = new_bottom + (_end - old_bottom);
+
+  mprotect(old_bottom, region_size, PROT_NONE); // TODO check return int
+}
 
 size_t G1HeapRegion::max_region_size() {
   return HeapRegionBounds::max_size();

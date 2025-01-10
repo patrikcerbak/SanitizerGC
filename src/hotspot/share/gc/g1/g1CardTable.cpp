@@ -33,7 +33,6 @@
 #include "logging/log.hpp"
 
 void G1CardTable::g1_mark_as_young(const MemRegion& mr) {
-  // SANITIZER breakpoint
   CardValue *first = byte_for(mr.start());
   CardValue *last = byte_after(mr.last());
 

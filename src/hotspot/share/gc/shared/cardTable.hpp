@@ -32,6 +32,8 @@
 #include "oops/oopsHierarchy.hpp"
 #include "utilities/align.hpp"
 
+#include "gc/g1/customMapper.h"
+
 class CardTable: public CHeapObj<mtGC> {
   friend class VMStructs;
 public:
@@ -117,22 +119,10 @@ public:
   // Mapping from address to card marking array entry
   CardValue* byte_for(const void* p) const {
 
-    void *ptr = nullptr;
 
-    if(reinterpret_cast<long>(p) > 0x700000000000) {
-      std::string fileName = "addresses.txt";
-      std::ifstream inputFile(fileName);
+    if(afterAddr != nullptr && p >= afterAddr) {
 
-      std::string line;
-
-      std::getline(inputFile, line);
-
-      inputFile.close();
-
-      uintptr_t address = std::stoull(line, nullptr, 16);
-      ptr = reinterpret_cast<void*>(address);
-
-      p = ptr;
+      p = beforeAddr;
     }
 
 

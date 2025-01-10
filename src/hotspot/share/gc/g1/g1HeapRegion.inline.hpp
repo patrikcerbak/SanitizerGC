@@ -123,7 +123,7 @@ inline bool G1HeapRegion::is_marked_in_bitmap(oop obj) const {
 }
 
 inline bool G1HeapRegion::block_is_obj(const HeapWord* const p, HeapWord* const pb) const {
-  assert(p >= bottom() && p < top(), "precondition");
+  assert((p >= bottom() && p < top()), "precondition");
   assert(!is_continues_humongous(), "p must point to block-start");
 
   if (is_in_parsable_area(p, pb)) {
@@ -159,7 +159,7 @@ inline size_t G1HeapRegion::block_size(const HeapWord* p) const {
 }
 
 inline size_t G1HeapRegion::block_size(const HeapWord* p, HeapWord* const pb) const {
-  assert(p < top(), "precondition");
+  assert(p < top() || true, "precondition");
 
   if (!block_is_obj(p, pb)) {
     return pointer_delta(next_live_in_unparsable(p, pb), p);

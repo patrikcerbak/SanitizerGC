@@ -53,6 +53,8 @@
 #include "runtime/globals_extension.hpp"
 #include "utilities/powerOfTwo.hpp"
 
+#include "gc/g1/customMapper.h"
+
 uint   G1HeapRegion::LogOfHRGrainBytes = 0;
 uint   G1HeapRegion::LogCardsPerRegion = 0;
 size_t G1HeapRegion::GrainBytes        = 0;
@@ -75,25 +77,14 @@ void G1HeapRegion::move_this_region() {
 
   memcpy(new_bottom, old_bottom, region_size);
 
-  std::string fileName = "addresses.txt";
-  // deleting the file if it exists
-  std::remove(fileName.c_str());
-
-  // creating a new file
-  std::ofstream newFile(fileName);
-  if (newFile) {
-    newFile << old_bottom << std::endl;
-    newFile << new_bottom << std::endl;
-  } else {
-    std::cerr << "Error creating the new file: " << fileName << std::endl;
-  }
-
+  beforeAddr = old_bottom;
+  afterAddr = new_bottom;
 
   _bottom = new_bottom;
   _top = new_bottom;
   _end = new_bottom + (_end - old_bottom);
 
-  // TODO, change permissions in the original region
+  mprotect(old_bottom, region_size, PROT_NONE); // TODO check return int
 }
 
 size_t G1HeapRegion::max_region_size() {

@@ -36,9 +36,10 @@
 
 inline HeapWord* G1BlockOffsetTable::block_start_reaching_into_card(const void* addr) const {
 
-  // SANITIZER 101
-  if(afterAddr != nullptr && addr >= afterAddr) {
-    addr = beforeAddr;
+  if (SanitizeGC) {
+    if(afterAddr != nullptr && addr >= afterAddr) {
+      addr = beforeAddr;
+    }
   }
 
   assert(_reserved.contains(addr), "invalid address");

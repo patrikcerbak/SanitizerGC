@@ -87,7 +87,7 @@ public:
   static CardValue g1_scanned_card_val() { return g1_card_already_scanned; }
 
   void verify_g1_young_region(MemRegion mr) PRODUCT_RETURN;
-  void g1_mark_as_young(const MemRegion &mr);
+  void g1_mark_as_young(const MemRegion& mr);
 
   size_t index_for_cardvalue(CardValue const* p) const {
     return pointer_delta(p, _byte_map, sizeof(CardValue));

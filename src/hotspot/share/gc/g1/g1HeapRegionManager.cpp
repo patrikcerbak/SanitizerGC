@@ -116,16 +116,18 @@ G1HeapRegion* HeapRegionManager::allocate_free_region(HeapRegionType type, uint 
     }
   }
 
-  // SANITIZER, printing of bottom, top and end
-  printf("index: %d, _bottom: %p, _top: %p, _end: %p\n", hr->hrm_index(), hr->bottom(), hr->top(), hr->end());
+  if (SanitizeGC) {
+    // SANITIZER, printing of bottom, top and end
+    printf("index: %d, _bottom: %p, _top: %p, _end: %p\n", hr->hrm_index(), hr->bottom(), hr->top(), hr->end());
 
-  // SANITIZER, moving the first region to different address
-  if (!wasFirstTaken) {
-    hr->move_this_region();
-    printf("region with index %d was moved here:\n", hr->hrm_index());
-    printf("    index: %d, _bottom: %p, _top: %p, _end: %p\n", hr->hrm_index(), hr->bottom(), hr->top(), hr->end());
+    // SANITIZER, moving the first region to different address
+    if (!wasFirstTaken) {
+      hr->move_this_region();
+      printf("region with index %d was moved here:\n", hr->hrm_index());
+      printf("    index: %d, _bottom: %p, _top: %p, _end: %p\n", hr->hrm_index(), hr->bottom(), hr->top(), hr->end());
 
-    wasFirstTaken = true;
+      wasFirstTaken = true;
+    }
   }
 
   return hr;

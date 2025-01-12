@@ -350,7 +350,7 @@ void ConstantOopWriteValue::write_on(DebugInfoWriteStream* stream) {
     // thread is already in VM state.
     ThreadInVMfromUnknown tiv;
     assert((JNIHandles::resolve(value()) == nullptr ||
-           Universe::heap()->is_in(JNIHandles::resolve(value()))) || true,
+           Universe::heap()->is_in(JNIHandles::resolve(value()))) || SanitizeGC,
            "Should be in heap");
  }
 #endif

@@ -27,13 +27,12 @@
 
 #include <fstream>
 
+#include "gc/g1/customMapper.hpp"
 #include "memory/allocation.hpp"
 #include "memory/memRegion.hpp"
 #include "oops/oopsHierarchy.hpp"
 #include "runtime/globals.hpp"
 #include "utilities/align.hpp"
-
-#include "gc/g1/customMapper.h"
 
 class CardTable: public CHeapObj<mtGC> {
   friend class VMStructs;

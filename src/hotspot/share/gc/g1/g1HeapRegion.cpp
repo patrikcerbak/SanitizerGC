@@ -53,7 +53,7 @@
 #include "runtime/globals_extension.hpp"
 #include "utilities/powerOfTwo.hpp"
 
-#include "gc/g1/customMapper.h"
+#include "gc/g1/customMapper.hpp"
 
 uint   G1HeapRegion::LogOfHRGrainBytes = 0;
 uint   G1HeapRegion::LogCardsPerRegion = 0;

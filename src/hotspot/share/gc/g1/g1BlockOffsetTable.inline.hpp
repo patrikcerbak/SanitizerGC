@@ -25,8 +25,7 @@
 #ifndef SHARE_GC_G1_G1BLOCKOFFSETTABLE_INLINE_HPP
 #define SHARE_GC_G1_G1BLOCKOFFSETTABLE_INLINE_HPP
 
-#include "gc/g1/customMapper.h"
-
+#include "gc/g1/customMapper.hpp"
 #include "gc/g1/g1BlockOffsetTable.hpp"
 #include "gc/g1/g1HeapRegion.hpp"
 #include "gc/shared/cardTable.hpp"

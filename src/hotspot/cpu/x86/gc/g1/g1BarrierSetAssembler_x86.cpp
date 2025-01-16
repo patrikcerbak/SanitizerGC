@@ -24,6 +24,7 @@
 
 #include "precompiled.hpp"
 #include "asm/macroAssembler.inline.hpp"
+#include "gc/g1/customMapper.hpp"
 #include "gc/g1/g1BarrierSet.hpp"
 #include "gc/g1/g1BarrierSetAssembler.hpp"
 #include "gc/g1/g1BarrierSetRuntime.hpp"
@@ -298,6 +299,10 @@ void G1BarrierSetAssembler::g1_write_barrier_post(MacroAssembler* masm,
 
   const Register card_addr = tmp;
   const Register cardtable = tmp2;
+
+  if (SanitizeGC) {
+    __ call_VM_leaf(CAST_FROM_FN_PTR(address, SanitizerGCMapper::mapNewAddrToOriginalAddr), store_addr);
+  }
 
   __ movptr(card_addr, store_addr);
   __ shrptr(card_addr, CardTable::card_shift());

@@ -79,6 +79,8 @@ void G1HeapRegion::move_this_region() {
 
   beforeAddr = old_bottom;
   afterAddr = new_bottom;
+  afterEndAddr = new_bottom + (_end - old_bottom);
+  beforeEndAddr = old_bottom + (_end - old_bottom);
 
   _bottom = new_bottom;
   _top = new_bottom;

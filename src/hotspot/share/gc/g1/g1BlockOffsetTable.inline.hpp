@@ -36,8 +36,9 @@
 inline HeapWord* G1BlockOffsetTable::block_start_reaching_into_card(const void* addr) const {
 
   if (SanitizeGC) {
-    if(afterAddr != nullptr && addr >= afterAddr) {
-      addr = beforeAddr;
+    if (afterAddr != nullptr && addr >= afterAddr && addr <= afterEndAddr) {
+      const long difference = static_cast<const char*>(addr) - static_cast<const char*>(afterAddr);
+      addr = static_cast<char*>(beforeAddr) + difference;
     }
   }
 

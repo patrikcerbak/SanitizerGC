@@ -120,8 +120,9 @@ public:
   CardValue* byte_for(const void* p) const {
 
     if (SanitizeGC) {
-      if (afterAddr != nullptr && p >= afterAddr) {
-        p = beforeAddr;
+      if (afterAddr != nullptr && p >= afterAddr && p <= afterEndAddr) {
+        const long difference = static_cast<const char*>(p) - static_cast<const char*>(afterAddr);
+        p = static_cast<const char*>(beforeAddr) + difference;
       }
     }
 

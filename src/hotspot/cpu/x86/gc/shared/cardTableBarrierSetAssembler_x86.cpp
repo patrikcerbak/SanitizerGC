@@ -44,6 +44,7 @@
 
 void CardTableBarrierSetAssembler::gen_write_ref_array_post_barrier(MacroAssembler* masm, DecoratorSet decorators,
                                                                     Register addr, Register count, Register tmp) {
+  __ os_breakpoint();
   BarrierSet *bs = BarrierSet::barrier_set();
   CardTableBarrierSet* ctbs = barrier_set_cast<CardTableBarrierSet>(bs);
   CardTable* ct = ctbs->card_table();
@@ -112,7 +113,7 @@ void CardTableBarrierSetAssembler::store_check(MacroAssembler* masm, Register ob
     // entry and that entry is not properly handled by the relocation code.
     AddressLiteral cardtable((address)byte_map_base, relocInfo::none);
     Address index(noreg, obj, Address::times_1);
-    card_addr = __ as_Address(ArrayAddress(cardtable, index), rscratch1);
+    card_addr = __ as_Address(ArrayAddress(cardtable, index), rscratch1); // TODO
   }
 
   int dirty = CardTable::dirty_card_val();

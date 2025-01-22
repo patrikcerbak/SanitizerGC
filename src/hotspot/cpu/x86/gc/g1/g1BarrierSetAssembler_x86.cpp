@@ -283,6 +283,12 @@ void G1BarrierSetAssembler::g1_write_barrier_post(MacroAssembler* masm,
   Label done;
   Label runtime;
 
+  if (SanitizeGC) {
+    __ call_VM_leaf(CAST_FROM_FN_PTR(address, SanitizerGCMapper::mapNewAddrToOriginalAddr), store_addr);
+    __ movptr(store_addr, rax);
+    // TODO SANITIZER
+  }
+
   // Does store cross heap regions?
 
   __ movptr(tmp, store_addr);
@@ -299,10 +305,6 @@ void G1BarrierSetAssembler::g1_write_barrier_post(MacroAssembler* masm,
 
   const Register card_addr = tmp;
   const Register cardtable = tmp2;
-
-  if (SanitizeGC) {
-    __ call_VM_leaf(CAST_FROM_FN_PTR(address, SanitizerGCMapper::mapNewAddrToOriginalAddr), store_addr);
-  }
 
   __ movptr(card_addr, store_addr);
   __ shrptr(card_addr, CardTable::card_shift());
@@ -340,7 +342,7 @@ void G1BarrierSetAssembler::g1_write_barrier_post(MacroAssembler* masm,
   // save the live input values
   RegSet saved = RegSet::of(store_addr NOT_LP64(COMMA thread));
   __ push_set(saved);
-  __ call_VM_leaf(CAST_FROM_FN_PTR(address, G1BarrierSetRuntime::write_ref_field_post_entry), card_addr, thread);
+  __ call_VM_leaf(CAST_FROM_FN_PTR(address, G1BarrierSetRuntime::write_ref_field_post_entry), card_addr, thread); // TODO, understand this
   __ pop_set(saved);
 
   __ bind(done);
@@ -540,6 +542,11 @@ void G1BarrierSetAssembler::generate_c1_post_barrier_runtime_stub(StubAssembler*
   const Register card_addr = rcx;
 
   __ load_parameter(0, card_addr);
+  if (SanitizeGC) {
+    __ call_VM_leaf(CAST_FROM_FN_PTR(address, SanitizerGCMapper::mapNewAddrToOriginalAddr), card_addr);
+    __ movptr(card_addr, rax);
+  }
+
   __ shrptr(card_addr, CardTable::card_shift());
   // Do not use ExternalAddress to load 'byte_map_base', since 'byte_map_base' is NOT
   // a valid address and therefore is not properly handled by the relocation code.
@@ -575,7 +582,7 @@ void G1BarrierSetAssembler::generate_c1_post_barrier_runtime_stub(StubAssembler*
   __ bind(runtime);
   __ push_call_clobbered_registers();
 
-  __ call_VM_leaf(CAST_FROM_FN_PTR(address, G1BarrierSetRuntime::write_ref_field_post_entry), card_addr, thread);
+  __ call_VM_leaf(CAST_FROM_FN_PTR(address, G1BarrierSetRuntime::write_ref_field_post_entry), card_addr, thread); // TODO, appropriate pattern?
 
   __ pop_call_clobbered_registers();
 

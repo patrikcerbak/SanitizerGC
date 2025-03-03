@@ -63,7 +63,7 @@ size_t G1HeapRegion::CardsPerRegion    = 0;
 
 // SANITIZER, trying to move this region
 void G1HeapRegion::move_this_region() {
-  size_t region_size = _end - _bottom;
+  size_t region_size = reinterpret_cast<intptr_t>(_end) - reinterpret_cast<intptr_t>(_bottom);
 
   void* new_region = mmap(nullptr, region_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 

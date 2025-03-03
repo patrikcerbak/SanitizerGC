@@ -63,30 +63,25 @@ size_t G1HeapRegion::CardsPerRegion    = 0;
 
 // SANITIZER, trying to move this region
 void G1HeapRegion::move_this_region() {
-  size_t region_size = reinterpret_cast<intptr_t>(_end) - reinterpret_cast<intptr_t>(_bottom);
-
-  void* new_region = mmap(nullptr, region_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-
-  if (new_region == MAP_FAILED) {
+  assert(_bottom + GrainWords == _end, "the region has an unexpected size");
+  HeapWord* new_bottom = reinterpret_cast<HeapWord*>(mmap(nullptr, GrainBytes,
+          PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
+  if (new_bottom == MAP_FAILED) {
     printf("mmap failed\n");
     return;
   }
+  memcpy(new_bottom, _bottom, GrainBytes);
+  if (mprotect(_bottom, GrainBytes, PROT_NONE) != 0) {
+    printf("mprotect failed, continuing anyway\n");
+  }
 
-  HeapWord* old_bottom = _bottom;
-  HeapWord* new_bottom = reinterpret_cast<HeapWord*>(new_region);
-
-  memcpy(new_bottom, old_bottom, region_size);
-
-  beforeAddr = old_bottom;
-  afterAddr = new_bottom;
-  afterEndAddr = new_bottom + (_end - old_bottom);
-  beforeEndAddr = old_bottom + (_end - old_bottom);
-
+  beforeAddr = _bottom;
+  beforeEndAddr = _end;
   _bottom = new_bottom;
   _top = new_bottom;
-  _end = new_bottom + (_end - old_bottom);
-
-  mprotect(old_bottom, region_size, PROT_NONE); // TODO check return int
+  _end = new_bottom + GrainWords;
+  afterAddr = _bottom;
+  afterEndAddr = _end;
 }
 
 size_t G1HeapRegion::max_region_size() {

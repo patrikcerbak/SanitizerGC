@@ -25,13 +25,10 @@
 #ifndef SHARE_GC_SHARED_CARDTABLE_HPP
 #define SHARE_GC_SHARED_CARDTABLE_HPP
 
-#include <fstream>
-
 #include "gc/g1/customMapper.hpp"
 #include "memory/allocation.hpp"
 #include "memory/memRegion.hpp"
 #include "oops/oopsHierarchy.hpp"
-#include "runtime/globals.hpp"
 #include "utilities/align.hpp"
 
 class CardTable: public CHeapObj<mtGC> {

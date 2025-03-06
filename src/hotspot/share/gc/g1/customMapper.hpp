@@ -1,6 +1,8 @@
 #ifndef CUSTOMMAPPER_H
 #define CUSTOMMAPPER_H
 
+#include "runtime/globals.hpp"
+
     extern void * beforeAddr;
     extern void * afterAddr;
     extern void * afterEndAddr;

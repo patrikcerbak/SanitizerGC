@@ -10,8 +10,13 @@
 
 class SanitizerGCMapper {
 public:
-    static void* mapNewAddrToOriginalAddr(void* newAddr);
+    static const void* mapNewAddrToOriginalAddr(const void* newAddr);
     static void testPrint(void* newAddr);
+    template <typename T> static inline void remapAddress(T &addr) {
+      if (SanitizeGC) {
+        addr = reinterpret_cast<T>(mapNewAddrToOriginalAddr(addr));
+      }
+    }
 };
 
 #endif //CUSTOMMAPPER_H

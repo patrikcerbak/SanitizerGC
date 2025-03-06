@@ -120,17 +120,10 @@ inline void G1CollectedHeap::humongous_obj_regions_iterate(G1HeapRegion* start, 
 }
 
 inline uint G1CollectedHeap::addr_to_region(const void* addr) const {
-  assert(is_in_reserved(addr) || SanitizeGC,
+  SanitizerGCMapper::remapAddress(addr);
+  assert(is_in_reserved(addr),
          "Cannot calculate region index for address " PTR_FORMAT " that is outside of the heap [" PTR_FORMAT ", " PTR_FORMAT ")",
          p2i(addr), p2i(reserved().start()), p2i(reserved().end()));
-
-  if (SanitizeGC) {
-    if (afterAddr != nullptr && addr >= afterAddr && addr <= afterEndAddr) {
-      const long difference = static_cast<const char*>(addr) - static_cast<const char*>(afterAddr);
-      addr = static_cast<char*>(beforeAddr) + difference;
-    }
-  }
-
   return (uint)(pointer_delta(addr, reserved().start(), sizeof(uint8_t)) >> G1HeapRegion::LogOfHRGrainBytes);
 }
 

@@ -115,14 +115,7 @@ public:
 
   // Mapping from address to card marking array entry
   CardValue* byte_for(const void* p) const {
-
-    if (SanitizeGC) {
-      if (afterAddr != nullptr && p >= afterAddr && p <= afterEndAddr) {
-        const long difference = static_cast<const char*>(p) - static_cast<const char*>(afterAddr);
-        p = static_cast<const char*>(beforeAddr) + difference;
-      }
-    }
-
+    SanitizerGCMapper::remapAddress(p);
     assert(_whole_heap.contains(p),
            "Attempt to access p = " PTR_FORMAT " out of bounds of "
            " card marking array's _whole_heap = [" PTR_FORMAT "," PTR_FORMAT ")",

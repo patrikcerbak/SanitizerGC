@@ -25,6 +25,7 @@
 #ifndef SHARE_GC_SHARED_MARKBITMAP_HPP
 #define SHARE_GC_SHARED_MARKBITMAP_HPP
 
+#include "gc/g1/customMapper.hpp"
 #include "memory/memRegion.hpp"
 #include "oops/oopsHierarchy.hpp"
 #include "utilities/bitMap.hpp"
@@ -47,6 +48,7 @@ protected:
   }
   // Convert from address to bit offset.
   size_t addr_to_offset(const HeapWord* addr) const {
+    SanitizerGCMapper::remapAddress(addr);
     return pointer_delta(addr, _covered.start()) >> _shifter;
   }
 

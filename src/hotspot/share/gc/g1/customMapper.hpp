@@ -14,7 +14,7 @@ public:
     static void testPrint(void* newAddr);
     template <typename T> static inline void remapAddress(T &addr) {
       if (SanitizeGC) {
-        addr = reinterpret_cast<T>(mapNewAddrToOriginalAddr(addr));
+        addr = (T) mapNewAddrToOriginalAddr(addr);
       }
     }
 };

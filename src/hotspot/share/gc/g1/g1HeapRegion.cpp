@@ -76,7 +76,6 @@ void G1HeapRegion::move_this_region() {
   }
 
   beforeAddr = _bottom;
-  beforeEndAddr = _end;
   _bottom = new_bottom;
   _top = new_bottom;
   _end = new_bottom + GrainWords;

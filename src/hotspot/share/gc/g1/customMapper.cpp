@@ -6,7 +6,6 @@
 void * beforeAddr = nullptr;
 void * afterAddr = nullptr;
 void * afterEndAddr = nullptr;
-void * beforeEndAddr = nullptr;
 
 const void* SanitizerGCMapper::mapNewAddrToOriginalAddr(const void* newAddr) {
     if (afterAddr != nullptr && newAddr >= afterAddr && newAddr < afterEndAddr) {

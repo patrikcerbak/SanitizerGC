@@ -6,7 +6,6 @@
     extern void * beforeAddr;
     extern void * afterAddr;
     extern void * afterEndAddr;
-    extern void * beforeEndAddr;
 
 class SanitizerGCMapper {
 public:

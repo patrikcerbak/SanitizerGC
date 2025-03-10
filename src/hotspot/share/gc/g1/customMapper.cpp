@@ -1,24 +1,29 @@
 #include "customMapper.hpp"
 
-#include <cstdint>
-#include <cstdio>
-
-const void* SanitizerGCMapper::originalRegionStart = nullptr;
+ptrdiff_t SanitizerGCMapper::movedRegionOffset = 0;
 const void* SanitizerGCMapper::movedRegionStart = nullptr;
 const void* SanitizerGCMapper::movedRegionEnd = nullptr;
 
+// Since we can't use void* for pointer arithmetic, we need another pointer
+// type, whose base element size is the unit for movedRegionOffset. We must use
+// the same pointer type when computing movedRegionOffset as when applying it,
+// so we define it here to ensure it is the same at both places. We choose char*
+// which makes movedRegionOffset unit to be bytes.
+using byte_ptr = const char*;
+
 void SanitizerGCMapper::initializeMapping(const void* originalRegionStart,
         const void* movedRegionStart, const void* movedRegionEnd) {
-    SanitizerGCMapper::originalRegionStart = originalRegionStart;
+    SanitizerGCMapper::movedRegionOffset =
+            static_cast<byte_ptr>(originalRegionStart) -
+            static_cast<byte_ptr>(movedRegionStart);
     SanitizerGCMapper::movedRegionStart = movedRegionStart;
     SanitizerGCMapper::movedRegionEnd = movedRegionEnd;
 }
 
 const void* SanitizerGCMapper::mapNewAddrToOriginalAddr(const void* newAddr) {
-    if (movedRegionStart != nullptr &&
+    if (movedRegionOffset != 0 &&
             newAddr >= movedRegionStart && newAddr < movedRegionEnd) {
-        const intptr_t difference = static_cast<const char*>(newAddr) - static_cast<const char*>(movedRegionStart);
-        newAddr = static_cast<const char*>(originalRegionStart) + difference;
+        return static_cast<byte_ptr>(newAddr) + movedRegionOffset;
     }
 
     return newAddr;

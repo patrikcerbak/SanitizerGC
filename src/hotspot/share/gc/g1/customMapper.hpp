@@ -1,11 +1,12 @@
 #ifndef CUSTOMMAPPER_H
 #define CUSTOMMAPPER_H
 
+#include <cstddef>
 #include "runtime/globals.hpp"
 
 class SanitizerGCMapper {
 private:
-    static const void* originalRegionStart;
+    static ptrdiff_t movedRegionOffset;
     static const void* movedRegionStart;
     static const void* movedRegionEnd;
 

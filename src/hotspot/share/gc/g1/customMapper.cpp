@@ -3,9 +3,16 @@
 #include <cstdint>
 #include <cstdio>
 
-void * beforeAddr = nullptr;
-void * afterAddr = nullptr;
-void * afterEndAddr = nullptr;
+const void* SanitizerGCMapper::beforeAddr = nullptr;
+const void* SanitizerGCMapper::afterAddr = nullptr;
+const void* SanitizerGCMapper::afterEndAddr = nullptr;
+
+void SanitizerGCMapper::initializeMapping(const void* beforeAddr,
+        const void* afterAddr, const void* afterEndAddr) {
+    SanitizerGCMapper::beforeAddr = beforeAddr;
+    SanitizerGCMapper::afterAddr = afterAddr;
+    SanitizerGCMapper::afterEndAddr = afterEndAddr;
+}
 
 const void* SanitizerGCMapper::mapNewAddrToOriginalAddr(const void* newAddr) {
     if (afterAddr != nullptr && newAddr >= afterAddr && newAddr < afterEndAddr) {

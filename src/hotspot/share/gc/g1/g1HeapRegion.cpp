@@ -75,12 +75,11 @@ void G1HeapRegion::move_this_region() {
     printf("mprotect failed, continuing anyway\n");
   }
 
-  beforeAddr = _bottom;
+  HeapWord* new_end = new_bottom + GrainWords;
+  SanitizerGCMapper::initializeMapping(_bottom, new_bottom, new_end);
   _bottom = new_bottom;
   _top = new_bottom;
-  _end = new_bottom + GrainWords;
-  afterAddr = _bottom;
-  afterEndAddr = _end;
+  _end = new_end;
 }
 
 size_t G1HeapRegion::max_region_size() {

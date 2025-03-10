@@ -3,12 +3,15 @@
 
 #include "runtime/globals.hpp"
 
-    extern void * beforeAddr;
-    extern void * afterAddr;
-    extern void * afterEndAddr;
-
 class SanitizerGCMapper {
+private:
+    static const void* beforeAddr;
+    static const void* afterAddr;
+    static const void* afterEndAddr;
+
 public:
+    static void initializeMapping(const void* beforeAddr,
+            const void* afterAddr, const void* afterEndAddr);
     static const void* mapNewAddrToOriginalAddr(const void* newAddr);
     static void testPrint(void* newAddr);
     template <typename T> static inline void remapAddress(T &addr) {

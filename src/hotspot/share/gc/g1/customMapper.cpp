@@ -3,21 +3,22 @@
 #include <cstdint>
 #include <cstdio>
 
-const void* SanitizerGCMapper::beforeAddr = nullptr;
-const void* SanitizerGCMapper::afterAddr = nullptr;
-const void* SanitizerGCMapper::afterEndAddr = nullptr;
+const void* SanitizerGCMapper::originalRegionStart = nullptr;
+const void* SanitizerGCMapper::movedRegionStart = nullptr;
+const void* SanitizerGCMapper::movedRegionEnd = nullptr;
 
-void SanitizerGCMapper::initializeMapping(const void* beforeAddr,
-        const void* afterAddr, const void* afterEndAddr) {
-    SanitizerGCMapper::beforeAddr = beforeAddr;
-    SanitizerGCMapper::afterAddr = afterAddr;
-    SanitizerGCMapper::afterEndAddr = afterEndAddr;
+void SanitizerGCMapper::initializeMapping(const void* originalRegionStart,
+        const void* movedRegionStart, const void* movedRegionEnd) {
+    SanitizerGCMapper::originalRegionStart = originalRegionStart;
+    SanitizerGCMapper::movedRegionStart = movedRegionStart;
+    SanitizerGCMapper::movedRegionEnd = movedRegionEnd;
 }
 
 const void* SanitizerGCMapper::mapNewAddrToOriginalAddr(const void* newAddr) {
-    if (afterAddr != nullptr && newAddr >= afterAddr && newAddr < afterEndAddr) {
-        const intptr_t difference = static_cast<const char*>(newAddr) - static_cast<const char*>(afterAddr);
-        newAddr = static_cast<const char*>(beforeAddr) + difference;
+    if (movedRegionStart != nullptr &&
+            newAddr >= movedRegionStart && newAddr < movedRegionEnd) {
+        const intptr_t difference = static_cast<const char*>(newAddr) - static_cast<const char*>(movedRegionStart);
+        newAddr = static_cast<const char*>(originalRegionStart) + difference;
     }
 
     return newAddr;

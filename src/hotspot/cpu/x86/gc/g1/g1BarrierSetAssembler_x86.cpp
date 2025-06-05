@@ -342,7 +342,7 @@ void G1BarrierSetAssembler::g1_write_barrier_post(MacroAssembler* masm,
   // save the live input values
   RegSet saved = RegSet::of(store_addr NOT_LP64(COMMA thread));
   __ push_set(saved);
-  __ call_VM_leaf(CAST_FROM_FN_PTR(address, G1BarrierSetRuntime::write_ref_field_post_entry), card_addr, thread); // TODO, understand this
+  __ call_VM_leaf(CAST_FROM_FN_PTR(address, G1BarrierSetRuntime::write_ref_field_post_entry), card_addr, thread); // TODO SANITIZE
   __ pop_set(saved);
 
   __ bind(done);

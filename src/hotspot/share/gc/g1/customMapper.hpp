@@ -2,11 +2,14 @@
 #define CUSTOMMAPPER_H
 
 #include <cstddef>
+#include <stdint.h>
 #include "runtime/globals.hpp"
 
 class SanitizerGCMapper {
 private:
     // TODO, put the public variables back here
+    using byte = unsigned char;
+    using byte_ptr = const byte*;
 
 public:
     static ptrdiff_t movedRegionOffset;
@@ -20,8 +23,9 @@ public:
             const void* originalRegionEnd, const void* movedRegionStart, const void* movedRegionEnd);
     static const void* mapNewAddrToOriginalAddr(const void* newAddr);
     static const void* mapOriginalAddrToNewAddr(const void *newAddr);
+    static const void* unifiedRemapper(const void* addr);
 
-    static void testPrint(void* newAddr);
+    static void testPrint(void* address, uintptr_t value);
     template <typename T> static inline void remapAddress(T &addr) {
       if (SanitizeGC) {
         addr = (T) mapNewAddrToOriginalAddr(addr);

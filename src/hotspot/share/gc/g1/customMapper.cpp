@@ -42,6 +42,24 @@ const void* SanitizerGCMapper::mapOriginalAddrToNewAddr(const void* originalAddr
     return originalAddr;
 }
 
-void SanitizerGCMapper::testPrint(void* newAddr) {
-    printf("---+++%p\n", newAddr);
+void SanitizerGCMapper::testPrint(void* address, uintptr_t value) {
+    if (address >= movedRegionStart && address <= movedRegionEnd &&
+        (void*)value >= movedRegionStart && (void*)value <= movedRegionEnd) {
+            // printf("+SANITIZE (moved dst+val):   DST:%p  VAL:%p\n", address, (void*)value);
+    } else if (address >= movedRegionStart && address <= movedRegionEnd) {
+        // printf("+SANITIZE (moved dst):   DST:%p  VAL:%p\n", address, (void*)value);
+    } else if ((void*)value >= movedRegionStart && (void*)value <= movedRegionEnd) {
+        // printf("+SANITIZE (moved val):   DST:%p  VAL:%p\n", address, (void*)value);
+    } else if (address >= originalRegionStart && address <= originalRegionEnd &&
+        (void*)value >= originalRegionStart && (void*)value <= originalRegionEnd) {
+            // printf("+SANITIZE (original dst+val):   DST:%p  VAL:%p\n", address, (void*)value);
+    } else if (address >= originalRegionStart && address <= originalRegionEnd) {
+            // printf("+SANITIZE (original dst):   DST:%p  VAL:%p\n", address, (void*)value);
+    } else if ((void*)value >= originalRegionStart && (void*)value <= originalRegionEnd) {
+        // printf("+SANITIZE (original val):   DST:%p  VAL:%p\n", address, (void*)value);
+    } else {
+        // printf("+SANITIZE (other):   DST:%p  VAL:%p\n", address, (void*)value);
+    }
+
+    fflush(stdout);
 }

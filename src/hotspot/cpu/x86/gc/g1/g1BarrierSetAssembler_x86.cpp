@@ -24,7 +24,7 @@
 
 #include "precompiled.hpp"
 #include "asm/macroAssembler.inline.hpp"
-#include "gc/g1/customMapper.hpp"
+#include "gc/g1/sanitizeAddressMapper.hpp"
 #include "gc/g1/g1BarrierSet.hpp"
 #include "gc/g1/g1BarrierSetAssembler.hpp"
 #include "gc/g1/g1BarrierSetRuntime.hpp"
@@ -284,9 +284,11 @@ void G1BarrierSetAssembler::g1_write_barrier_post(MacroAssembler* masm,
   Label runtime;
 
   if (SanitizeGC) {
+    RegSet exclude_set = RegSet::of(store_addr);
+    __ push_call_clobbered_registers_except(exclude_set);
     __ call_VM_leaf(CAST_FROM_FN_PTR(address, SanitizerGCMapper::mapNewAddrToOriginalAddr), store_addr);
     __ movptr(store_addr, rax);
-    // TODO SANITIZER
+    __ pop_call_clobbered_registers_except(exclude_set);
   }
 
   // Does store cross heap regions?
@@ -342,7 +344,7 @@ void G1BarrierSetAssembler::g1_write_barrier_post(MacroAssembler* masm,
   // save the live input values
   RegSet saved = RegSet::of(store_addr NOT_LP64(COMMA thread));
   __ push_set(saved);
-  __ call_VM_leaf(CAST_FROM_FN_PTR(address, G1BarrierSetRuntime::write_ref_field_post_entry), card_addr, thread); // TODO SANITIZE
+  __ call_VM_leaf(CAST_FROM_FN_PTR(address, G1BarrierSetRuntime::write_ref_field_post_entry), card_addr, thread);
   __ pop_set(saved);
 
   __ bind(done);
@@ -542,9 +544,13 @@ void G1BarrierSetAssembler::generate_c1_post_barrier_runtime_stub(StubAssembler*
   const Register card_addr = rcx;
 
   __ load_parameter(0, card_addr);
+
   if (SanitizeGC) {
+    RegSet exclude_set = RegSet::of(card_addr);
+    __ push_call_clobbered_registers_except(exclude_set);
     __ call_VM_leaf(CAST_FROM_FN_PTR(address, SanitizerGCMapper::mapNewAddrToOriginalAddr), card_addr);
     __ movptr(card_addr, rax);
+    __ pop_call_clobbered_registers_except(exclude_set);
   }
 
   __ shrptr(card_addr, CardTable::card_shift());

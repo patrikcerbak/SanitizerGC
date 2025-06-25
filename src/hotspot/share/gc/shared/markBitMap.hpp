@@ -25,7 +25,7 @@
 #ifndef SHARE_GC_SHARED_MARKBITMAP_HPP
 #define SHARE_GC_SHARED_MARKBITMAP_HPP
 
-#include "gc/g1/customMapper.hpp"
+#include "gc/g1/sanitizeAddressMapper.hpp"
 #include "memory/memRegion.hpp"
 #include "oops/oopsHierarchy.hpp"
 #include "utilities/bitMap.hpp"

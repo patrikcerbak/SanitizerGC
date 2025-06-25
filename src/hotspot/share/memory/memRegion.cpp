@@ -26,8 +26,7 @@
 #include "memory/allocation.hpp"
 #include "memory/allocation.inline.hpp"
 #include "memory/memRegion.hpp"
-
-#include <gc/g1/customMapper.hpp>
+#include "gc/g1/sanitizeAddressMapper.hpp"
 
 #include "runtime/globals.hpp"
 

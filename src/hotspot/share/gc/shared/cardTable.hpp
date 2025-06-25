@@ -25,7 +25,7 @@
 #ifndef SHARE_GC_SHARED_CARDTABLE_HPP
 #define SHARE_GC_SHARED_CARDTABLE_HPP
 
-#include "gc/g1/customMapper.hpp"
+#include "gc/g1/sanitizeAddressMapper.hpp"
 #include "memory/allocation.hpp"
 #include "memory/memRegion.hpp"
 #include "oops/oopsHierarchy.hpp"

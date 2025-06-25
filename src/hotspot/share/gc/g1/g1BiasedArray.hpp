@@ -29,7 +29,7 @@
 #include "memory/memRegion.hpp"
 #include "utilities/debug.hpp"
 #include "utilities/powerOfTwo.hpp"
-#include "customMapper.hpp"
+#include "sanitizeAddressMapper.hpp"
 
 // Implements the common base functionality for arrays that contain provisions
 // for accessing its elements using a biased index.

@@ -52,8 +52,7 @@
 #include "runtime/atomic.hpp"
 #include "runtime/globals_extension.hpp"
 #include "utilities/powerOfTwo.hpp"
-
-#include "gc/g1/customMapper.hpp"
+#include "gc/g1/sanitizeAddressMapper.hpp"
 
 uint   G1HeapRegion::LogOfHRGrainBytes = 0;
 uint   G1HeapRegion::LogCardsPerRegion = 0;
@@ -687,20 +686,6 @@ class G1VerifyLiveAndRemSetClosure : public BasicOopIterateClosure {
     bool failed() const {
       if (_from != _to && !_from->is_young() && _to->rem_set()->is_complete()) {
         const CardValue dirty = G1CardTable::dirty_card_val();
-
-        if (SanitizeGC) {
-          printf("  - !( %d || ( %d ? %d : (%d || %d) ) )\n", _to->rem_set()->contains_reference(this->_p), this->_containing_obj->is_objArray(), (_cv_field == dirty), (_cv_obj == dirty), (_cv_field == dirty));
-        }
-
-        bool condition = !(_to->rem_set()->contains_reference(this->_p) ||
-                 (this->_containing_obj->is_objArray() ?
-                  _cv_field == dirty :
-                  _cv_obj == dirty || _cv_field == dirty));
-
-        if (SanitizeGC && condition) {
-          printf("SANITIZE"); // breakpoint catcher
-        }
-
         return !(_to->rem_set()->contains_reference(this->_p) ||
                  (this->_containing_obj->is_objArray() ?
                   _cv_field == dirty :

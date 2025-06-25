@@ -18,14 +18,11 @@ public:
     static const void* originalRegionStart;
     static const void* originalRegionEnd;
 
-
     static void initializeMapping(const void* originalRegionStart,
             const void* originalRegionEnd, const void* movedRegionStart, const void* movedRegionEnd);
     static const void* mapNewAddrToOriginalAddr(const void* newAddr);
     static const void* mapOriginalAddrToNewAddr(const void *newAddr);
-    static const void* unifiedRemapper(const void* addr);
 
-    static void testPrint(void* address, uintptr_t value);
     template <typename T> static inline void remapAddress(T &addr) {
       if (SanitizeGC) {
         addr = (T) mapNewAddrToOriginalAddr(addr);

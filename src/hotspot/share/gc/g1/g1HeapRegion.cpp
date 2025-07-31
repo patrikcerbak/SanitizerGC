@@ -22,6 +22,11 @@
  *
  */
 
+#include <fstream>
+#include <iostream>
+#include <ostream>
+#include <sys/mman.h>
+
 #include "precompiled.hpp"
 #include "code/nmethod.hpp"
 #include "gc/g1/g1Allocator.inline.hpp"
@@ -47,12 +52,70 @@
 #include "runtime/atomic.hpp"
 #include "runtime/globals_extension.hpp"
 #include "utilities/powerOfTwo.hpp"
+#include "gc/g1/sanitizeGCHeapRegionMap.hpp"
 
 uint   G1HeapRegion::LogOfHRGrainBytes = 0;
 uint   G1HeapRegion::LogCardsPerRegion = 0;
 size_t G1HeapRegion::GrainBytes        = 0;
 size_t G1HeapRegion::GrainWords        = 0;
 size_t G1HeapRegion::CardsPerRegion    = 0;
+
+// TODO => move this to a separate file
+void G1HeapRegion::move_free_region() {
+  assert(_bottom + GrainWords == _end, "The G1HeapRegion has an unexpected size");
+
+  HeapWord* new_bottom = (HeapWord*) os::reserve_memory_aligned(GrainBytes, GrainBytes, false);
+  os::protect_memory((char*) new_bottom, GrainBytes, os::MEM_PROT_RW, true); // TODO
+
+  assert(new_bottom != nullptr, "SanitizeGC: Failed to allocate memory for G1HeapRegion.");
+
+  if (!os::protect_memory((char*) _bottom, GrainBytes, os::MEM_PROT_NONE, true)) {
+    log_warning(gc)("SanitizeGC: Failed to protect old G1HeapRegion's memory, continuing anyway");
+  }
+
+  HeapWord* new_end = new_bottom + GrainWords;
+
+  // TODO initializing the maps
+  if (!SanitizeGCRegionMaps::are_initialized) {
+    RegionMapEntry::shift_by = LogOfHRGrainBytes;
+    SanitizeGCRegionMaps::moved_to_original = new RegionMap();
+    SanitizeGCRegionMaps::original_to_moved = new RegionMap();
+    SanitizeGCRegionMaps::are_initialized = true;
+  }
+
+  SanitizeGCRegionMaps::moved_to_original->insert(new_bottom, _bottom);
+  SanitizeGCRegionMaps::original_to_moved->insert(_bottom, new_bottom);
+
+  // // also inserting the "end" of the region to the "moved" map, as some logic needs to access it
+  // SanitizeGCRegionMaps::moved_to_original->insert(new_end, _end);
+
+  _bottom = new_bottom;
+  _top = new_bottom;
+  _end = new_end;
+}
+
+class PrintG1HeapRegionInfoClosure : public HeapRegionClosure {
+public:
+  bool do_heap_region(G1HeapRegion* hr) override {
+    uint index = hr->hrm_index();
+    HeapWord* bottom = hr->bottom();
+    HeapWord* top = hr->top();
+    HeapWord* end = hr->end();
+
+    printf("----------  %p  ----------\n", bottom);
+    printf("|    hrm_index:  %d       \n", index);
+    printf("|    current top:  %p     \n", top);
+    printf("| is young: %d, is eden: %d, is old: %d, is survivor: %d\n", hr->is_young(), hr->is_eden(), hr->is_old(), hr->is_survivor());
+    printf("----------  %p  ----------\n\n", end);
+    return false;
+  }
+};
+
+void printMemoryRegionMap() {
+  G1CollectedHeap *heap = G1CollectedHeap::heap();
+  PrintG1HeapRegionInfoClosure customClosure;
+  heap->heap_region_iterate(&customClosure);
+}
 
 size_t G1HeapRegion::max_region_size() {
   return HeapRegionBounds::max_size();

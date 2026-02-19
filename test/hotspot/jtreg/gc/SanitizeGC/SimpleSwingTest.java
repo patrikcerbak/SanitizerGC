@@ -25,7 +25,7 @@
 /*
  * @test SimpleSwingTest.java
  * @summary Basic Swing GUI test. It opens a window and closes it in 2 seconds.
- * @run main/othervm -XX:-UseCompressedOops -XX:-UseCompressedClassPointers -XX:+UseG1GC -XX:+SanitizeGC -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.SimpleSwingTest
+ * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.SimpleSwingTest
  */
 
 package gc.SanitizeGC;

@@ -23,20 +23,22 @@
  */
 
 /*
- * @test SimpleStressTest.java
- * @summary Simple GC stress test.
- * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.SimpleStressTest
+ * @test FullGCTest.java
+ * @summary Simple GC stress test with full GC.
+ * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.FullGCTest
  */
 
 package gc.SanitizeGC;
 
-public class SimpleStressTest {
+import java.lang.ref.WeakReference;
+
+public class FullGCTest {
     public static void main(String[] args) {
-        System.out.println("Starting simple GC stress test.");
+        System.out.println("Starting simple GC stress test with a full GC at the 10000th iteration.");
 
         long counter = 0;
         try {
-            for (int i = 0; i < 25_000; i++) {
+            for (int i = 0; i < 20_000; i++) {
                 // allocate a lot of short-lived objects
                 byte[][] data = new byte[1024][];
                 for (int j = 0; j < data.length; j++) {
@@ -45,6 +47,17 @@ public class SimpleStressTest {
                 counter++;
                 if (counter % 10 == 0) {
                     System.out.println("Iteration: " + counter);
+                }
+
+                if (counter == 10_000) {
+                    // Uses a hack to trigger a full gc here from:
+                    // https://stackoverflow.com/a/6915221
+                    Object obj = new Object();
+                    WeakReference ref = new WeakReference<Object>(obj);
+                    obj = null;
+                    while(ref.get() != null) {
+                        System.gc();
+                    }
                 }
             }
         } catch (OutOfMemoryError e) {

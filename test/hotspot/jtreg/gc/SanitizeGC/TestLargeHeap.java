@@ -26,7 +26,7 @@
  * @test TestLargeHeap.java
  * @summary Basic test with a large java heap.
  * @build gc.SanitizeGC.SanitizeGCTestObj
- * @run main/othervm -XX:-UseCompressedOops -XX:-UseCompressedClassPointers -XX:+UseG1GC -XX:+SanitizeGC -Xmx2g -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.TestLargeHeap
+ * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xmx2g -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.TestLargeHeap
  */
 
 package gc.SanitizeGC;

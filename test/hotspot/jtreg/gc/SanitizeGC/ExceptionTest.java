@@ -23,26 +23,26 @@
  */
 
 /*
- * @test TestSmallHeap.java
- * @summary Basic test with a small java heap.
- * @build gc.SanitizeGC.SanitizeGCTestObj
- * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xmx100m -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.TestLargeHeap
+ * @test ExceptionTest.java
+ * @summary Basic exception catch test.
+ * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xmx2g -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.ExceptionTest
  */
 
 package gc.SanitizeGC;
 
-import java.util.List;
-import java.util.ArrayList;
-import gc.SanitizeGC.SanitizeGCTestObj;
+public class ExceptionTest {
 
-public class TestSmallHeap {
+    static void crash() {
+        // This will throw ArithmeticException.
+        int x = 10 / 0;
+        System.out.println(x);
+    }
+
     public static void main(String[] args) {
-        System.out.println("Small heap test start.");
-        List<SanitizeGCTestObj> list = new ArrayList<>();
-        for(int i = 0; i < 10_000; i++) {
-            SanitizeGCTestObj obj = new SanitizeGCTestObj(1000);
-            list.add(obj);
+        try {
+            crash();
+        } catch (Exception e) {
+            System.out.println("Caught: " + e);
         }
-        System.out.println("Small heap test end.");
     }
 }

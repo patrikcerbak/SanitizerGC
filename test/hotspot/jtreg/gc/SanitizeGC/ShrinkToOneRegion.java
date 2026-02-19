@@ -25,7 +25,7 @@
 /*
  * @test ShrinkToOneRegion.java
  * @summary Test to try shrinking the heap to just one region.
- * @run main/othervm -XX:-UseCompressedOops -XX:-UseCompressedClassPointers -XX:+UseG1GC -XX:+SanitizeGC -XX:G1HeapRegionSize=32m -Xmx256m -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.ShrinkToOneRegion
+ * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -XX:G1HeapRegionSize=32m -Xmx256m -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.ShrinkToOneRegion
  */
 
 package gc.SanitizeGC;

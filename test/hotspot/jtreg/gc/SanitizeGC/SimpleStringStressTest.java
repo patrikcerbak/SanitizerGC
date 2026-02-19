@@ -25,7 +25,7 @@
 /*
  * @test SimpleStringStressTest.java
  * @summary Simple GC stress test.
- * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -Xmx10m -XX:+SanitizeGC -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.SimpleStringStressTest
+ * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -Xmx50m -XX:+SanitizeGC -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.SimpleStringStressTest
  */
 
 package gc.SanitizeGC;

@@ -23,4 +23,14 @@ public:
     }
 };
 
+#define MacroAssemblerMapNewAddrToOriginalAddr(addr) do {                                               \
+  if (SanitizeGC) {                                                                                     \
+    RegSet exclude_set = RegSet::of((addr));                                                            \
+    __ push_call_clobbered_registers_except(exclude_set);                                               \
+    __ call_VM_leaf(CAST_FROM_FN_PTR(address, SanitizeGCMapper::mapNewAddrToOriginalAddrImpl), (addr)); \
+    __ movptr((addr), rax);                                                                             \
+    __ pop_call_clobbered_registers_except(exclude_set);                                                \
+  }                                                                                                     \
+} while(0)
+
 #endif // SHARE_GC_G1_SANITIZEADDRESSMAPPER_HPP

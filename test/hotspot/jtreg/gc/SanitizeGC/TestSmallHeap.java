@@ -26,7 +26,7 @@
  * @test TestSmallHeap.java
  * @summary Basic test with a small java heap.
  * @build gc.SanitizeGC.SanitizeGCTestObj
- * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xmx100m -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.TestLargeHeap
+ * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xmx20m -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.TestSmallHeap
  */
 
 package gc.SanitizeGC;
@@ -38,10 +38,12 @@ import gc.SanitizeGC.SanitizeGCTestObj;
 public class TestSmallHeap {
     public static void main(String[] args) {
         System.out.println("Small heap test start.");
-        List<SanitizeGCTestObj> list = new ArrayList<>();
-        for(int i = 0; i < 10_000; i++) {
-            SanitizeGCTestObj obj = new SanitizeGCTestObj(1000);
-            list.add(obj);
+        for (int i = 0; i < 100; i++) {
+            List<SanitizeGCTestObj> list = new ArrayList<>();
+             for(int j = 0; j < 10_000; j++) {
+                 SanitizeGCTestObj obj = new SanitizeGCTestObj(1000);
+                  list.add(obj);
+             }
         }
         System.out.println("Small heap test end.");
     }

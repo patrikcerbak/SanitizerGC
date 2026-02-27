@@ -65,19 +65,15 @@ void G1HeapRegion::move_free_region() {
   assert(_bottom + GrainWords == _end, "The G1HeapRegion has an unexpected size");
 
   HeapWord* new_bottom = (HeapWord*) os::reserve_memory_aligned(GrainBytes, GrainBytes, false);
-  os::protect_memory((char*) new_bottom, GrainBytes, os::MEM_PROT_RW, true); // TODO
-
   assert(new_bottom != nullptr, "SanitizeGC: Failed to allocate memory for G1HeapRegion");
 
-  if (os::protect_memory((char*) _bottom, GrainBytes, os::MEM_PROT_NONE, true)) {
-    log_debug(gc, region)("SanitizeGC: Locked memory from %p to %p", _bottom, _bottom + GrainWords);
-  } else {
-    log_warning(gc, region)("SanitizeGC: Failed to protect old G1HeapRegion's memory, continuing anyway");
-  }
+  assert(os::protect_memory((char*) new_bottom, GrainBytes, os::MEM_PROT_RW, true),
+    "SanitizeGC: Failed to set RW protection to the newly allocated memory");
 
-  HeapWord* new_end = new_bottom + GrainWords;
+  assert(!_is_moved || _is_uncommited, "SanitizeGC: The region needs to be uncommited if it was moved already");
+  set_uncommited(false);
 
-  // TODO initializing the maps
+  // Initialize the maps if it was not done already.
   if (!SanitizeGCRegionMaps::are_initialized) {
     RegionMapEntry::shift_by = LogOfHRGrainBytes;
     SanitizeGCRegionMaps::moved_to_original = new RegionMap();
@@ -85,6 +81,7 @@ void G1HeapRegion::move_free_region() {
     SanitizeGCRegionMaps::are_initialized = true;
   }
 
+  // Adding new addresses into the maps and updating old ones.
   if (!_is_moved) {
     bool insertedMto = SanitizeGCRegionMaps::moved_to_original->insert(new_bottom, _bottom);
     bool insertedOtm = SanitizeGCRegionMaps::original_to_moved->insert(_bottom, new_bottom);
@@ -93,20 +90,20 @@ void G1HeapRegion::move_free_region() {
   } else {
     HeapWord* original_bottom = (HeapWord*) SanitizeGCRegionMaps::moved_to_original->remap_address(_bottom);
     assert(_bottom != original_bottom && original_bottom != nullptr, "_bottom cannot be the same as original_bottom, when the region was already moved");
-    bool removed = SanitizeGCRegionMaps::moved_to_original->remove(_bottom);
     bool inserted = SanitizeGCRegionMaps::moved_to_original->insert(new_bottom, original_bottom);
     bool updated = SanitizeGCRegionMaps::original_to_moved->update(original_bottom, new_bottom);
-    assert(removed && inserted && updated, "Some operation(s) failed: remove (%d), insert (%d), update (%d)", removed, inserted, updated);
+    assert(true && inserted && updated, "Some operation(s) failed: insert (%d), update (%d)", inserted, updated);
     log_debug(gc, region)("SanitizeGC: The region %d was already moved once before. Original bottom: %p, current bottom: %p, new bottom: %p", _hrm_index, original_bottom, _bottom, new_bottom);
   }
 
   assert(_parsable_bottom == _bottom, "SanitizeGC: Parsable bottom should be equal to the old bottom");
 
+  HeapWord* new_end = new_bottom + GrainWords;
   _bottom = new_bottom;
   _top = new_bottom;
   _end = new_end;
 
-  // setting parsable bottom and resetting top
+  // Setting parsable bottom and resetting top.
   _parsable_bottom = new_bottom;
   G1CollectedHeap::heap()->concurrent_mark()->reset_top_at_mark_start(this);
 }
@@ -314,6 +311,7 @@ G1HeapRegion::G1HeapRegion(uint hrm_index,
   _bottom(mr.start()),
   _end(mr.end()),
   _is_moved(false),
+  _is_uncommited(false),
   _top(nullptr),
   _bot(bot),
   _pre_dummy_top(nullptr),

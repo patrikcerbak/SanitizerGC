@@ -2623,8 +2623,13 @@ void G1CollectedHeap::free_region(G1HeapRegion* hr, FreeRegionList* free_list) {
   log_debug(gc, region)("freeing region with index %d (%p - %p)", hr->hrm_index(), hr->bottom(), hr->end());
 
   // Reset region metadata to allow reuse.
-  hr->hr_clear(true /* clear_space */);
+  hr->hr_clear(!SanitizeGC /* clear_space */); // Clearing the space is useless with SanitizeGC.
   _policy->remset_tracker()->update_at_free(hr);
+
+  if (SanitizeGC) {
+    os::uncommit_memory((char*) hr->bottom(), G1HeapRegion::GrainBytes);
+    hr->set_uncommited(true);
+  }
 
   if (free_list != nullptr) {
     free_list->add_ordered(hr);
@@ -2799,6 +2804,10 @@ public:
       assert(r->rem_set()->is_empty(), "Empty regions should have empty remembered sets.");
       // Add free regions to the free list
       r->set_free();
+      if (SanitizeGC) {
+        os::uncommit_memory((char*) r->bottom(), G1HeapRegion::GrainBytes);
+        r->set_uncommited(true);
+      }
       _hrm->insert_into_free_list(r);
     } else if (!_free_list_only) {
       assert(r->rem_set()->is_empty(), "At this point remembered sets must have been cleared.");

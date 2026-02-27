@@ -1998,7 +1998,7 @@ const int ObjectAlignmentInBytes = 8;
   product(bool, StressSecondarySupers, false, DIAGNOSTIC,                   \
           "Use a terrible hash function in order to generate many collisions.") \
                                                                             \
-  develop(bool, SanitizeGC, false,                                          \
+  product(bool, SanitizeGC, false,                                          \
           "Generate heap space stress by moving objects around to detect "  \
           "dangling references. Only G1 supported.")                        \
 

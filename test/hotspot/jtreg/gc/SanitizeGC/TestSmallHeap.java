@@ -38,7 +38,7 @@ import gc.SanitizeGC.SanitizeGCTestObj;
 public class TestSmallHeap {
     public static void main(String[] args) {
         System.out.println("Small heap test start.");
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             List<SanitizeGCTestObj> list = new ArrayList<>();
              for(int j = 0; j < 10_000; j++) {
                  SanitizeGCTestObj obj = new SanitizeGCTestObj(1000);

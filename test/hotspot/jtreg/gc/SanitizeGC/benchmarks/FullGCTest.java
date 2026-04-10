@@ -24,11 +24,11 @@
 
 /*
  * @test FullGCTest.java
- * @summary Simple GC stress test with full GC.
- * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.FullGCTest
+ * @summary Simple GC stress test allocating byte arrays with a full GC triggered in the middle.
+ * @run main/othervm/timeout=300 -XX:+UseG1GC -XX:+SanitizeGC -Xmx400m -Xlog:gc+phases=debug,gc+task=debug,gc+region=trace gc.SanitizeGC.benchmarks.FullGCTest
  */
 
-package gc.SanitizeGC;
+package gc.SanitizeGC.benchmarks;
 
 import java.lang.ref.WeakReference;
 
@@ -50,7 +50,7 @@ public class FullGCTest {
                 }
 
                 if (counter == 10_000) {
-                    // Uses a hack to trigger a full gc here from:
+                    // Uses a hack to trigger a full gc here, from:
                     // https://stackoverflow.com/a/6915221
                     Object obj = new Object();
                     WeakReference ref = new WeakReference<Object>(obj);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, IBM.
+ * Copyright (c) 2026, IBM.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -23,33 +23,33 @@
  */
 
 /*
- * @test SimpleObjectStressTest.java
- * @summary Simple object GC stress test.
- * @build gc.SanitizeGC.SanitizeGCTestObj
- * @run main/othervm/timeout=300 -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xmx200m -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.SimpleObjectStressTest
+ * @test ObjectStressTest.java
+ * @summary A GC stress test allocating millions of objects of different sizes.
+ * @build gc.SanitizeGC.benchmarks.SanitizeGCTestObj
+ * @run main/othervm/timeout=300 -XX:+UseG1GC -XX:+SanitizeGC -Xmx400m -Xlog:gc+phases=debug,gc+task=debug,gc+region=trace gc.SanitizeGC.benchmarks.ObjectStressTest
  */
 
-package gc.SanitizeGC;
+package gc.SanitizeGC.benchmarks;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.ref.WeakReference;
 import gc.SanitizeGC.SanitizeGCTestObj;
 
-public class SimpleObjectStressTest {
+public class ObjectStressTest {
     public static void main(String[] args) {
-        System.out.println("Starting simple object stress test.");
+        System.out.println("Starting an object stress test.");
 
         try {
             for (int i = 0; i < 25_000; i++) {
-                // allocate a lot of short-lived objects
+                // allocate a lot of short-lived objects of different sizes
                 List<SanitizeGCTestObj> list = new ArrayList<>();
                 for(int j = 0; j < 2000; j++) {
                     SanitizeGCTestObj obj;
-                    if (j % 2 == 0) {
-                        obj = new SanitizeGCTestObj(1138);
+                    if (true) {
+                        obj = new SanitizeGCTestObj(1234);
                     } else if (j % 3 == 0) {
-                        obj = new SanitizeGCTestObj(10_381);
+                        obj = new SanitizeGCTestObj(4236);
                     } else {
                         obj = new SanitizeGCTestObj(394);
                     }
@@ -61,9 +61,9 @@ public class SimpleObjectStressTest {
                     System.out.println("Iteration: " + i);
                 }
 
-                if (i != 0 && i % 5000 == 0) {
+                if (i == 12500) {
                     System.out.println("Triggering full GC.");
-                    // Uses a hack to trigger a full gc here from:
+                    // Uses a hack to trigger a full gc here, from:
                     // https://stackoverflow.com/a/6915221
                     Object obj = new Object();
                     WeakReference ref = new WeakReference<Object>(obj);

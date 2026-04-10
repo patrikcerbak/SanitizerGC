@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, IBM.
+ * Copyright (c) 2026, IBM.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -24,9 +24,9 @@
 
 /*
  * @test TestLargeHeap.java
- * @summary Basic test with a large java heap.
+ * @summary Basic test with a very large java heap (4G). It allocates a lot of large objects in it.
  * @build gc.SanitizeGC.SanitizeGCTestObj
- * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -XX:+SanitizeGC -Xmx4g -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.TestLargeHeap
+ * @run main/othervm -XX:+UseG1GC -XX:+SanitizeGC -Xmx4g -Xlog:gc+phases=debug,gc+task=debug,gc+region=trace gc.SanitizeGC.TestLargeHeap
  */
 
 package gc.SanitizeGC;

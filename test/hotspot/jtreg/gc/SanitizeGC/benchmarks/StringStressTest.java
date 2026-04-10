@@ -23,16 +23,14 @@
  */
 
 /*
- * @test SimpleStringStressTest.java
- * @summary Simple GC stress test.
- * @run main/othervm -XX:-UseCompressedOops -XX:+UseG1GC -Xmx50m -XX:+SanitizeGC -Xlog:gc+remset=trace,gc+refine=trace,gc+barrier=trace,gc+phases=trace,gc+task=debug,gc+verify=debug,gc+region=trace gc.SanitizeGC.SimpleStringStressTest
+ * @test StringStressTest.java
+ * @summary A GC stress test using Strings.
+ * @run main/othervm/timeout=300 -XX:+UseG1GC -XX:+SanitizeGC -Xmx400m -Xlog:gc+phases=debug,gc+task=debug,gc+region=trace gc.SanitizeGC.benchmarks.StringStressTest
  */
 
-package gc.SanitizeGC;
+package gc.SanitizeGC.benchmarks;
 
-import java.util.Random;
-
-public class SimpleStringStressTest {
+public class StringStressTest {
     public static void main(String[] args) {
         System.out.println("Starting simple GC stress test (String version).");
 
@@ -42,7 +40,7 @@ public class SimpleStringStressTest {
                 // allocate a lot of short-lived String objects
                 String[] data = new String[1024];
                 for (int j = 0; j < data.length; j++) {
-                    // generate some varying string content
+                    // generate some string content
                     data[j] = new String("#" + i + "|" + j + " jrnfkdmendianjenajkdsnvasjkdrnwekjfnajksdfnakjewnrfjfs" +
                     "fadsfadsfadfaejlknvmaoeirjaoijfdakjhekbnvakljjbenbasdmfnaelfndjsbfjaksdlraewerjwekrsdjfkldsjvkls" +
                     "fjakenklvnskldaneknaklsdnfkacvznldnalkjewnfkjalsdhfajlsdfakljsdfhajskdlfhasjkldfhasdkjlfhasdljkf" +

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026, IBM.
+ * Copyright (c) 2025, IBM.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -23,26 +23,32 @@
  */
 
 /*
- * @test ExceptionTest.java
- * @summary Basic test that catches an exception.
- * @run main/othervm -XX:+UseG1GC -XX:+SanitizeGC -Xlog:gc+phases=debug,gc+task=debug,gc+region=trace gc.SanitizeGC.ExceptionTest
+ * @test SimpleInterpretedBenchmark.java
+ * @summary Simple GC stress test.
+ * @run main/othervm/timeout=300 -XX:+UseG1GC -XX:+SanitizeGC -Xmx400m -Xint -Xlog:gc+phases=debug,gc+task=debug,gc+region=trace gc.SanitizeGC.benchmarks.SimpleInterpretedBenchmark
  */
 
-package gc.SanitizeGC;
+package gc.SanitizeGC.benchmarks;
 
-public class ExceptionTest {
-
-    static void crash() {
-        // this will throw ArithmeticException.
-        int x = 10 / 0;
-        System.out.println(x);
-    }
-
+public class SimpleInterpretedBenchmark {
     public static void main(String[] args) {
+        System.out.println("Starting simple GC benchmark in the interpreted mode.");
+
+        long counter = 0;
         try {
-            crash();
-        } catch (Exception e) {
-            System.out.println("Caught: " + e);
+            for (int i = 0; i < 25_000; i++) {
+                // allocate a lot of short-lived objects
+                byte[][] data = new byte[1024][];
+                for (int j = 0; j < data.length; j++) {
+                    data[j] = new byte[1024];
+                }
+                counter++;
+                if (counter % 10 == 0) {
+                    System.out.println("Iteration: " + counter);
+                }
+            }
+        } catch (OutOfMemoryError e) {
+            System.out.println("Out of memory after " + counter + " iterations.");
         }
     }
 }

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2026, IBM.
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,16 +22,17 @@
  * questions.
  */
 
-// Based on a G1's "TestRegionAlignment.java" test.
-
 /*
- * @test TestRegionAlignment.java
- * @summary Make sure that G1 ergonomics pick a heap size that is aligned with the region size.
- * @run main/othervm -XX:+SanitizeGC -XX:+UseG1GC -XX:G1HeapRegionSize=32m -XX:MaxRAM=555m gc.SanitizeGC.TestRegionAlignment
+ * @test WrongSelectedGCTest.java
+ * @summary THIS TEST SHOULD FAIL! Testing wrong combination of arguments (SanitizeGC and UseSerialGC).
+ * @run main/othervm -XX:+UseSerialGC -XX:+SanitizeGC -Xlog:gc+phases=debug,gc+task=debug,gc+region=trace gc.SanitizeGC.shouldfail.WrongSelectedGCTest
  */
 
-package gc.SanitizeGC;
 
-public class TestRegionAlignment {
-    public static void main(String[] args) { }
+package gc.SanitizeGC.shouldfail;
+
+public class WrongSelectedGCTest {
+    public static void main(String[] args) {
+        System.out.println("This will never be printed.");
+    }
 }

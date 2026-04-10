@@ -1999,7 +1999,7 @@ const int ObjectAlignmentInBytes = 8;
           "Use a terrible hash function in order to generate many collisions.") \
                                                                             \
   product(bool, SanitizeGC, false,                                          \
-          "Generate heap space stress by moving objects around to detect "  \
+          "Generate heap space stress by moving regions around to detect "  \
           "dangling references. Only G1 supported.")                        \
 
 // end of RUNTIME_FLAGS

@@ -2620,13 +2620,13 @@ void G1CollectedHeap::free_region(G1HeapRegion* hr, FreeRegionList* free_list) {
   assert(_hrm.is_available(hr->hrm_index()), "region should be committed");
   assert(!hr->has_pinned_objects(),
          "must not free a region which contains pinned objects");
-  log_debug(gc, region)("freeing region with index %d (%p - %p)", hr->hrm_index(), hr->bottom(), hr->end());
 
   // Reset region metadata to allow reuse.
   hr->hr_clear(!SanitizeGC /* clear_space */); // Clearing the space is useless with SanitizeGC.
   _policy->remset_tracker()->update_at_free(hr);
 
   if (SanitizeGC) {
+    log_debug(gc, region)("SanitizeGC: freeing region with index %d (%p - %p)", hr->hrm_index(), hr->bottom(), hr->end());
     os::uncommit_memory((char*) hr->bottom(), G1HeapRegion::GrainBytes);
     hr->set_uncommited(true);
   }
@@ -2805,6 +2805,7 @@ public:
       // Add free regions to the free list
       r->set_free();
       if (SanitizeGC) {
+        log_debug(gc, region)("SanitizeGC: freeing region with index %d (%p - %p)", r->hrm_index(), r->bottom(), r->end());
         os::uncommit_memory((char*) r->bottom(), G1HeapRegion::GrainBytes);
         r->set_uncommited(true);
       }

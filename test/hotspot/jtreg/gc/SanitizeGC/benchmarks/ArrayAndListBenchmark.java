@@ -39,7 +39,7 @@ public class ArrayAndListBenchmark {
     public static void main(String[] args) {
         System.out.println("Starting Memory Benchmark.");
 
-        for (int i = 1; i <= 50; i++) {
+        for (int i = 0; i < 50; i++) {
             System.out.printf(">>> Iteration %d <<<\n", i);
 
             // primitive integer array

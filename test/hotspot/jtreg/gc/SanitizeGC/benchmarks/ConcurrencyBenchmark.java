@@ -42,10 +42,12 @@ public class ConcurrencyBenchmark {
 
     public static void main(String[] args) throws Exception {
         ConcurrencyBenchmark bench = new ConcurrencyBenchmark();
-        System.out.println("Starting Benchmark with " + THREAD_COUNT + " threads.");
+        System.out.println("Starting concurrency benchmark with " + THREAD_COUNT + " threads.");
 
-        // run the benchmark 10 times
-        for (int i = 0; i < 10; i++) {
+        // run the benchmark 50 times
+        for (int i = 0; i < 50; i++) {
+            System.out.printf(">>> Iteration %d <<<\n", i);
+
             long startSync = System.nanoTime();
             bench.runSyncTest();
             long endSync = System.nanoTime();
@@ -61,6 +63,7 @@ public class ConcurrencyBenchmark {
 
     }
 
+    // uses the "synchronized" block for adding to the counter
     private void runSyncTest() throws InterruptedException {
         syncCounter = 0;
         CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
@@ -75,6 +78,7 @@ public class ConcurrencyBenchmark {
         startThreads(r, latch);
     }
 
+    // uses the atomic incrementation for adding to the counter
     private void runAtomicTest() throws InterruptedException {
         atomicCounter.set(0);
         CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
@@ -88,6 +92,7 @@ public class ConcurrencyBenchmark {
     }
 
     private void startThreads(Runnable r, CountDownLatch latch) throws InterruptedException {
+        // start all threads
         for (int i = 0; i < THREAD_COUNT; i++) {
             new Thread(r).start();
         }

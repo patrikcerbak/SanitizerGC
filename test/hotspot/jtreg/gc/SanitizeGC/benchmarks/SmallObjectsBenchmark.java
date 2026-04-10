@@ -25,7 +25,7 @@
 /*
  * @test SmallObjectsBenchmark.java
  * @summary Simple GC benchark, that allocates 250 million small objects in total.
- * @build gc.SanitizeGC.benchmarksSanitizeGCTestObj
+ * @build gc.SanitizeGC.benchmarks.SanitizeGCTestObj
  * @run main/othervm/timeout=300 -XX:+UseG1GC -XX:+SanitizeGC -Xmx400m -Xlog:gc+phases=debug,gc+task=debug,gc+region=trace gc.SanitizeGC.benchmarks.SmallObjectsBenchmark
  */
 

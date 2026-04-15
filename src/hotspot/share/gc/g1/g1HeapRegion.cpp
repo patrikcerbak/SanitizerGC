@@ -60,18 +60,22 @@ size_t G1HeapRegion::GrainBytes        = 0;
 size_t G1HeapRegion::GrainWords        = 0;
 size_t G1HeapRegion::CardsPerRegion    = 0;
 
-// TODO => move this to a separate file
 void G1HeapRegion::move_free_region() {
   assert(_bottom + GrainWords == _end, "The G1HeapRegion has an unexpected size");
 
   HeapWord* new_bottom = (HeapWord*) os::reserve_memory_aligned(GrainBytes, GrainBytes, false);
   assert(new_bottom != nullptr, "SanitizeGC: Failed to allocate memory for G1HeapRegion");
 
-  assert(os::protect_memory((char*) new_bottom, GrainBytes, os::MEM_PROT_RW, true),
-    "SanitizeGC: Failed to set RW protection to the newly allocated memory");
+  bool set_protection = os::protect_memory((char*) new_bottom, GrainBytes, os::MEM_PROT_RW, true);
+  assert(set_protection, "SanitizeGC: Failed to set RW protection to the newly allocated memory");
 
   assert(!_is_moved || _is_uncommited, "SanitizeGC: The region needs to be uncommited if it was moved already");
   set_uncommited(false);
+
+  if (!_is_moved) {
+    bool locked_original = os::protect_memory((char*) _bottom, GrainBytes, os::MEM_PROT_NONE, true);
+    assert(locked_original, "SanitizeGC: Failed to set NONE protection to the original memory.");
+  }
 
   // Initialize the maps if it was not done already.
   if (!SanitizeGCRegionMaps::are_initialized) {
@@ -92,7 +96,7 @@ void G1HeapRegion::move_free_region() {
     assert(_bottom != original_bottom && original_bottom != nullptr, "_bottom cannot be the same as original_bottom, when the region was already moved");
     bool inserted = SanitizeGCRegionMaps::moved_to_original->insert(new_bottom, original_bottom);
     bool updated = SanitizeGCRegionMaps::original_to_moved->update(original_bottom, new_bottom);
-    assert(true && inserted && updated, "Some operation(s) failed: insert (%d), update (%d)", inserted, updated);
+    assert(inserted && updated, "Some operation(s) failed: insert (%d), update (%d)", inserted, updated);
     log_debug(gc, region)("SanitizeGC: The region %d was already moved once before. Original bottom: %p, current bottom: %p, new bottom: %p", _hrm_index, original_bottom, _bottom, new_bottom);
   }
 
@@ -126,7 +130,7 @@ public:
     if (moved) {
       printf("|    original bottom:  %p,  original end:  %p\n", bottom_remapped, end_remapped);
     }
-    printf("|    is young:  %d,  is eden:  %d,  is old:  %d,  is survivor:  %d,  is humongous:  %d\n", hr->is_young(), hr->is_eden(), hr->is_old(), hr->is_survivor(), hr->is_humongous());
+    printf("|    is young:  %d  (is eden:  %d,  is survivor:  %d),  is old:  %d,  is humongous:  %d\n", hr->is_young(), hr->is_eden(), hr->is_survivor(), hr->is_old(), hr->is_humongous());
     printf("|    current top:  %p     \n", top);
     printf("----------  %p  ----------\n\n", end);
     fflush(stdout);

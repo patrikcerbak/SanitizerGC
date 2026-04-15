@@ -67,7 +67,7 @@ class RegionMap : public CHeapObj<mtGC> {
   class RegionMapLookUp {
     const void* _address;
   public:
-    explicit RegionMapLookUp(const void * address) : _address(address) { }
+    explicit RegionMapLookUp(const void* address) : _address(address) { }
     uintx get_hash() const {
       return RegionMapEntry::shift_address(_address);
     }
